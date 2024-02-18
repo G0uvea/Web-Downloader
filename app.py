@@ -1,7 +1,6 @@
-import tkinter
+import tkinter as tk
 import customtkinter as ctk
 from pytube import YouTube
-
 
 WIDTH = 640
 HEIGHT = 160
@@ -17,14 +16,15 @@ class Main(ctk.CTk):
         self.maxsize(WIDTH, HEIGHT)
         self.minsize(WIDTH, HEIGHT)
         self.title("Youtube Downloader 1.0.0")
+        self.iconbitmap("icon.ico")
 
         def download_video():
             url = input_entry.get()
             resolution = resolution_str.get()
 
-            progress_bar.place(x=260, y=80, anchor=tkinter.CENTER)
-            progress_label.place(x=20, y=80, anchor=tkinter.CENTER)
-            status_label.place(x=WIDTH / 2.1, y=120, anchor=tkinter.CENTER)
+            progress_bar.place(x=260, y=80, anchor=tk.CENTER)
+            progress_label.place(x=20, y=80, anchor=tk.CENTER)
+            status_label.place(x=WIDTH / 2.1, y=120, anchor=tk.CENTER)
 
             try:
                 yt = YouTube(url, on_progress_callback=download_progressing)
@@ -57,20 +57,20 @@ class Main(ctk.CTk):
         input_label_text = "Coloque uma URL do youtube"
         label_text_color = "#A1A1A1"
         input_entry = ctk.CTkEntry(frame, width=460, height=25, text_color=label_text_color, corner_radius=10, font=program_font, placeholder_text=input_label_text, placeholder_text_color=label_text_color)
-        input_entry.place(x=235, y=30, anchor=tkinter.CENTER)
+        input_entry.place(x=235, y=30, anchor=tk.CENTER)
 
         button_hover_color = "#6700b5"
         button_fg_color = "#9003fc"
         button_text = "Download"
         download_button = ctk.CTkButton(frame, text=button_text, width=140, height=25, hover_color=button_hover_color, fg_color=button_fg_color,corner_radius=10, font=program_font, command=download_video)
         download_button.pack(pady=5)
-        download_button.place(x=545, y=80, anchor=tkinter.CENTER)
+        download_button.place(x=545, y=80, anchor=tk.CENTER)
 
         resolutions = ["720p", "360p", "240p", "144p"]
         resolution_str = ctk.StringVar()
         resolution_cbb = ctk.CTkComboBox(frame, width=140, height=25, values=resolutions, font=program_font, variable=resolution_str)
         resolution_cbb.set("720p")
-        resolution_cbb.place(x=545, y=30, anchor=tkinter.CENTER)
+        resolution_cbb.place(x=545, y=30, anchor=tk.CENTER)
 
         progress_color = "#9003fc"
         progress_bar = ctk.CTkProgressBar(frame, width=420, height=25, progress_color=progress_color)
