@@ -16,8 +16,7 @@ class Main(ctk.CTk):
         self.maxsize(WIDTH, HEIGHT)
         self.minsize(WIDTH, HEIGHT)
         self.title("Youtube Downloader 1.0.0")
-        self.iconbitmap("icon.ico")
-
+        
         def download_video():
             url = input_entry.get()
             resolution = resolution_str.get()
