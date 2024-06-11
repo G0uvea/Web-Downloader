@@ -1,7 +1,7 @@
 # ----- Window Configurations ----- #
 window_width = 333
 window_height = 220
-window_title = "Youtube Downloader 1.3"
+window_title = "Youtube Downloader 1.4"
 
 # ----- Cores ----- #
 frame_bg_col = "#242424"

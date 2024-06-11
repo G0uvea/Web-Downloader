@@ -1,3 +1,4 @@
+import time
 import tkinter as tk
 import customtkinter as ctk
 import os
@@ -6,6 +7,8 @@ from pytube import *
 from manager import *
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory
+from pathlib import Path
+from moviepy.editor import *
 
 window = ctk.CTk()
 
@@ -16,7 +19,8 @@ window.maxsize(window_width, window_height)
 window.minsize(window_width, window_height)
 window.title(window_title)
 
-download_folder = os.path.expanduser("~"+"\\downloads\\YoutubeDownloader")
+video_download_folder = os.path.expanduser("~" + "\\downloads\\YoutubeDownloader\\Videos")
+audio_download_folder = os.path.expanduser("~" + "\\downloads\\YoutubeDownloader\\Audios")
 
 #region DOWNLOADS METHODS
 def video_download():
@@ -31,7 +35,7 @@ def video_download():
         yt = YouTube(url, on_progress_callback=download_progressing)
         stream = yt.streams.filter(res=resolution).first()
 
-        stream.download(output_path=download_folder)
+        stream.download(output_path=video_download_folder)
     except Exception as ex:
         # status_label.configure(text=f"Erro {str(ex)}", text_color=error_color)
         progress_bar.set(float(0))
@@ -47,12 +51,18 @@ def download_audio():
 
     try:
         yt = YouTube(url, on_progress_callback=download_progressing)
-        stream = yt.streams.filter(only_audio=True).first()
-        out_file = stream.download(output_path=download_folder)
+        stream = yt.streams.filter().first()
+        audio_file = stream.download(output_path=audio_download_folder)
 
-        base, ext = os.path.splitext(out_file)
-        new_file = base + '.mp3'
-        os.rename(out_file, new_file)
+        time.sleep(1)
+        path_list = Path(audio_download_folder).glob("*.mp4")
+
+        video_clip = VideoFileClip(str(audio_file))
+        video_clip.audio.write_audiofile(f"{str(audio_file)}.mp3")
+
+        time.sleep(1)
+        os.remove(audio_file)
+
     except Exception as ex:
         # status_label.configure(text=f"Erro {str(ex)}", text_color=error_color)
         progress_bar.set(float(0))
