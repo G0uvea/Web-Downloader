@@ -1,29 +1,34 @@
+<<<<<<< HEAD
 # ----- Window Configurations ----- #
 window_width = 333
 window_height = 220
 window_title = "Youtube Downloader 1.4"
+=======
+WIDTH = 333
+HEIGHT = 640
+SCALE = 2
+TITLE = "Youtube Downloader 1.1"
+ICON = ""
+>>>>>>> parent of c65d886 (Release 1.3 - Correção de Bugs)
 
-# ----- Cores ----- #
-frame_bg_col = "#242424"
-url_text_col = "#A1A1A1"
-error_text_col = "#fc2d31"
-progress_col = "#9003fc"
-btn_hover_col = "#6700b5"
-btn_fg_col = "#9003fc"
+frame_bg_color = "#242424" # background color
+input_label_text = "Coloque uma URL do youtube" # URL label
+label_text_color = "#A1A1A1" # URL label color
 
-# ----- Label Texts ----- #
-url_text_placeholder = "Insira a URL"
-downloaded_file = "Arquivo Baixado com sucesso!"
-progress_label_text = "0%"
-download_video_btn = "Baixar Vídeo"
-download_audio_btn = "Baixar Áudio"
-select_download_path_btn = "Local de download"
-video_resolutions = ["720p", "480p", "360p", "240p", "144p"]
-video_res_label = "Qualidade do Vídeo:"
+error_color = "#fc2d31" # error text label color
+font_family = "Fira Code" # font
+progress_color = "#9003fc" # progress bar color
+progress_label_text = "100%" # progress label
+status_label_text = "Download feito com sucesso" # status label
 
-# ----- Font Configuration ----- #
-font_family = "Roboto"
-font_high_size = 20
-font_normal_size = 18
-font_small_size = 16
-font_very_small_size = 12
+btn_hover_color = "#6700b5" # download button hover color
+btn_fg_color = "#9003fc" # download button background color
+
+video_download_btn_lbl = "Baixar Video" # download video button label
+audio_download_btn_lbl = "Baixar Audio" # download audio button label
+
+video_resolutions = ["720p", "360p", "240p", "144p"]
+select_video_resoluction_label = "Resolução do vídeo:"
+
+audio_resolutions = ["128khz", "192khz", "320hkz"]
+select_audio_resoluction_label = "Resolução do audio:"
