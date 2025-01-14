@@ -57,3 +57,14 @@ def create_cbb(parent, width, height, font_size, values, variable, **kwargs):
     )
     
     return combobox
+
+def create_progress_bar(parent, width, height, **kwargs):
+    progressbar = ctk.CTkProgressBar(
+        parent,
+        width=width,
+        height=height,
+        **kwargs
+    )
+
+    return progressbar
+

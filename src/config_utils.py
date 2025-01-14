@@ -4,18 +4,19 @@ from pathlib import Path
 
 # Window Configuration
 WINDOW_WIDTH = 485
-WINDOW_HEIGHT = 220
+WINDOW_HEIGHT = 175
 WINDOW_TITLE = "Youtube Downloader 1.8"
 WINDOW_ICON = Path(__file__).parent.parent / "assets" / "icon.ico"
 FONT_FAMILY = "Roboto"
 
 # Positions
-error_message_pos = {"relx": 0.0, "rely": 1.03, "anchor": "sw"}
-url_input_pos = {"relx": 0.0, "rely": 0.0, "anchor": "nw"}
-validate_btn_pos = {"relx": 0.835, "rely": 0.0, "anchor": "n"}
-download_btn_pos = {"relx": 0.835, "rely": 0.367, "anchor": "n"}
-video_options_pos = {"relx": 0.0, "rely": 0.367, "anchor": "nw"}
-file_loc_btn_pos = {"relx": 0.0, "rely": 0.18, "anchor": "nw"}
+error_message_pos = {"x": 0, "y": 160, "anchor": "sw"}
+url_input_pos = {"x": 0, "y": 0, "anchor": "nw"}
+validate_btn_pos = {"x": 390, "y": 0, "anchor": "n"}
+download_btn_pos = {"x": 390, "y": 70, "anchor": "n"}
+video_options_pos = {"x": 0, "y": 70, "anchor": "nw"}
+file_loc_btn_pos = {"x": 0, "y": 35, "anchor": "nw"}
+download_progress_pos = {"x": 0, "y": 105, "anchor": "nw"}
 
 CONFIG_DIR = Path(__file__).parent.parent / "config"
 CONFIG_FILE = CONFIG_DIR / "config.json"

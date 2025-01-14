@@ -8,21 +8,18 @@ from src import youtube_module
 from src import app_logic
 
 config_utils.load_config()
-DOWNLOAD_FOLDER = config_utils.DOWNLOAD_FOLDER
 
 def select_local_file_download():
-    global DOWNLOAD_FOLDER
-    selected_folder = filedialog.askdirectory(initialdir=DOWNLOAD_FOLDER)
+    selected_folder = filedialog.askdirectory(initialdir=config_utils.DOWNLOAD_FOLDER)
     if selected_folder:
-        DOWNLOAD_FOLDER = selected_folder
+        config_utils.DOWNLOAD_FOLDER = selected_folder
         config_utils.save_config()
-        save_local_file.configure(text=app_logic.truncate_text(DOWNLOAD_FOLDER, 35))
+        save_local_file.configure(text=app_logic.truncate_text(config_utils.DOWNLOAD_FOLDER, 35))
 
 def fetch_video_resolutions(url):
     options = youtube_module.get_video_resolutions(url)
     video_resolution = options['video']
-    audio_qualities = options['audio']
-    all_options = ['Vídeo: ' + res for res in video_resolution] + ['Áudio: ' + audio for audio in audio_qualities]
+    all_options = ['Vídeo: ' + res for res in video_resolution] + ['Apenas áudio']
 
     window.after(0, update_video_options, all_options)
 
@@ -32,32 +29,38 @@ def update_video_options(all_options):
         videos_options.set(all_options[0])
     videos_options.place(**config_utils.video_options_pos)
     download_button.place(**config_utils.download_btn_pos)
-
+    
 def more_actions():
     url = url_input.get()
     
     if not url:
-        error_message.place(**config_utils.error_message_pos)
+        url_unavaliable.place(**config_utils.error_message_pos)
         return
 
     youtube_regex = re.compile(
         r'^(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/.+$')
     
     if not youtube_regex.match(url):
-        error_message.place(**config_utils.error_message_pos)
+        url_unavaliable.place(**config_utils.error_message_pos)
         return
 
     threading.Thread(target=fetch_video_resolutions, args=(url,)).start()
 
+def progress_callback(d):
+    if d['status'] == 'downloading':
+        percent_str = re.sub(r'[^\d.]+', '', d['_percent_str'])
+        percent = float(percent_str)
+        window.after(0, download_progress.set, percent / 100)
+
 def download():
+    download_progress.place(**config_utils.download_progress_pos)
     selected_option = videos_options.get()
     url = url_input.get()
     if selected_option.startswith("Vídeo:"):
         resolution = selected_option.split(": ")[1]
-        threading.Thread(target=youtube_module.download_video, args=(url, resolution, DOWNLOAD_FOLDER)).start()
-    if selected_option.startswith("Áudio:"):
-        audio_quality = selected_option.split(": ")[1]
-        threading.Thread(target=youtube_module.download_audio, args=(url, audio_quality, DOWNLOAD_FOLDER)).start()
+        threading.Thread(target=youtube_module.download_video, args=(url, resolution, config_utils.DOWNLOAD_FOLDER, progress_callback)).start()
+    if selected_option.startswith("Apenas áudio"):
+        threading.Thread(target=youtube_module.download_audio, args=(url, config_utils.DOWNLOAD_FOLDER, progress_callback)).start()
 
 if __name__ == "__main__":
     window = ctk.CTk()
@@ -79,11 +82,12 @@ if __name__ == "__main__":
     url_input = ctk_utils.create_entry(
         frame, 
         300, 
-        25, 
+        29, 
         18, 
         "#A1A1A1", 
-        5, 
-        "Insira a URL!")
+        0, 
+        "Insira a URL!",
+        border_width=0)
     url_input.place(**config_utils.url_input_pos)
 
     validate_button = ctk_utils.create_button(
@@ -91,32 +95,36 @@ if __name__ == "__main__":
         150, 
         25, 
         "Buscar", 
-        18, 
-        corner_radius=5, 
+        18,
+        fg_color="#8036cf", 
+        hover_color="#572390",
+        corner_radius=0,
+        border_width=0,
         command=more_actions)
     validate_button.place(**config_utils.validate_btn_pos)
 
     save_local_file = ctk_utils.create_button(
         frame, 
-        463, 
+        466, 
         25, 
-        app_logic.truncate_text(DOWNLOAD_FOLDER, 35), 
+        app_logic.truncate_text(config_utils.DOWNLOAD_FOLDER, 35), 
         18, 
         command=select_local_file_download, 
         fg_color="#343638", 
-        border_width=2, 
-        border_color="#565b5e", 
-        corner_radius=5,
-        hover=False)
+        border_width=0, 
+        hover_color="#2c2e30", 
+        corner_radius=0)
     save_local_file.place(**config_utils.file_loc_btn_pos)
 
     videos_options = ctk_utils.create_cbb(
         frame, 
         300, 
-        25, 
+        29, 
         18, 
         [], 
         None,
+        corner_radius=0,
+        border_width=0,
         state="readonly")
     videos_options.place_forget()
     # videos_options.place(**config_utils.video_options_pos)
@@ -127,17 +135,31 @@ if __name__ == "__main__":
         25, 
         "Baixar", 
         18, 
-        corner_radius=5, 
+        fg_color="#8036cf", 
+        corner_radius=0,
+        hover_color="#572390",
         command=download)
     download_button.place_forget()
     # download_button.place(**config_utils.download_btn_pos)
 
-    error_message = ctk_utils.create_label(
+    download_progress = ctk_utils.create_progress_bar(
+        frame, 
+        466,
+        25,
+        corner_radius=0,
+        fg_color="#343638",
+        border_width=0, 
+        progress_color="#8036cf")
+    download_progress.set(0)
+    download_progress.place_forget()
+    # download_progress.place(**config_utils.download_progress_pos)
+
+    url_unavaliable = ctk_utils.create_label(
         frame, 
         "URL INDISPONÍVEL", 
         "#fc2d31", 
         16)
-    error_message.place_forget()
-    # error_message.place(**config_utils.error_message_pos)
+    # url_unavaliable.place_forget()
+    url_unavaliable.place(**config_utils.error_message_pos)
 
     window.mainloop()
