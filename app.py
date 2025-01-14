@@ -1,182 +1,143 @@
-import time
-import tkinter as tk
+import re
 import customtkinter as ctk
-import os
+import threading
+from tkinter import filedialog
+from src import config_utils
+from src import ctk_utils
+from src import youtube_module
+from src import app_logic
 
-from pytube import *
-from tkinter import messagebox
-from pathlib import Path
-from moviepy.editor import *
+config_utils.load_config()
+DOWNLOAD_FOLDER = config_utils.DOWNLOAD_FOLDER
 
-# ----- Cores ----- #
-frame_bg_col = "#242424"
-url_text_col = "#A1A1A1"
-status_error_col = "#fc2d31"
-status_normal_col = "#ffffff"
-progress_col = "#9003fc"
-btn_hover_col = "#6700b5"
-btn_fg_col = "#9003fc"
+def select_local_file_download():
+    global DOWNLOAD_FOLDER
+    selected_folder = filedialog.askdirectory(initialdir=DOWNLOAD_FOLDER)
+    if selected_folder:
+        DOWNLOAD_FOLDER = selected_folder
+        config_utils.save_config()
+        save_local_file.configure(text=app_logic.truncate_text(DOWNLOAD_FOLDER, 35))
 
-# ----- Label Texts ----- #
-url_text_placeholder = "Insira a URL"
-downloaded_file = "Arquivo Baixado com sucesso!"
-progress_label_text = "0%"
-download_video_btn = "Baixar Vídeo"
-download_audio_btn = "Baixar Áudio"
-select_download_path_btn = "Local de download"
-video_resolutions = ["720p", "480p", "360p", "240p", "144p"]
-video_res_label = "Qualidade do Vídeo:"
+def fetch_video_resolutions(url):
+    options = youtube_module.get_video_resolutions(url)
+    video_resolution = options['video']
+    audio_qualities = options['audio']
+    all_options = ['Vídeo: ' + res for res in video_resolution] + ['Áudio: ' + audio for audio in audio_qualities]
 
-# ----- Font Configuration ----- #
-font_family = "Roboto"
-font_high_size = 20
-font_normal_size = 18
-font_small_size = 16
-font_very_small_size = 12
+    window.after(0, update_video_options, all_options)
 
-# ----- Paths ----- #
-download_folder = "D:\\Arquivos\\Downloads HDD\\Youtube Downloader"
+def update_video_options(all_options):
+    videos_options.configure(values=all_options)
+    if all_options:
+        videos_options.set(all_options[0])
+    videos_options.place(**config_utils.video_options_pos)
+    download_button.place(**config_utils.download_btn_pos)
 
-# ----- Window Configuration ----- #
-window = ctk.CTk()
-
-window_width = 333
-window_height = 220
-window_title = "Youtube Downloader 1.7"
-
-window.maxsize(window_width, window_height)
-window.minsize(window_width, window_height)
-window.title(window_title)
-window.iconbitmap("icon.ico")
-
-# ----- CTK Configuration ----- #
-ctk.set_appearance_mode("System")
-ctk.set_default_color_theme("blue")
-
-# ----- Start APP ----- #
-try:
-    video_clip_path = Path(download_folder).glob("*.mp4")
-
-    for file in video_clip_path:
-        os.remove(file)
-except Exception as ex:
-    print("Não foi possivel localizar um arquivo de vídeo no diretório.")
-    print(f"{ex}")
-
-#region DOWNLOADS METHODS
-def video_download():
+def more_actions():
     url = url_input.get()
-    resolution = video_resolution.get()
+    
+    if not url:
+        error_message.place(**config_utils.error_message_pos)
+        return
 
-    try:
-        yt = YouTube(url, on_progress_callback=download_progressing)
-        stream = yt.streams.filter(res=resolution).first()
+    youtube_regex = re.compile(
+        r'^(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/.+$')
+    
+    if not youtube_regex.match(url):
+        error_message.place(**config_utils.error_message_pos)
+        return
 
-        progress_bar.place(x=156, y=140, anchor=tk.CENTER)
-        progress_label.place(x=156, y=140, anchor=tk.CENTER)
+    threading.Thread(target=fetch_video_resolutions, args=(url,)).start()
 
-        stream.download(output_path=download_folder)
-
-        time.sleep(3)
-        status_label.configure(text=downloaded_file, text_color=status_normal_col)
-        status_label.place(x=156, y=180, anchor=tk.CENTER)
-
-    except Exception as ex:
-        status_label.configure(text=f"Ocorreu um erro. \n {str(ex)}", text_color=status_error_col)
-        status_label.place(x=156, y=180, anchor=tk.CENTER)
-
-def download_audio():
+def download():
+    selected_option = videos_options.get()
     url = url_input.get()
+    if selected_option.startswith("Vídeo:"):
+        resolution = selected_option.split(": ")[1]
+        threading.Thread(target=youtube_module.download_video, args=(url, resolution, DOWNLOAD_FOLDER)).start()
+    if selected_option.startswith("Áudio:"):
+        audio_quality = selected_option.split(": ")[1]
+        threading.Thread(target=youtube_module.download_audio, args=(url, audio_quality, DOWNLOAD_FOLDER)).start()
 
-    try:
-        yt = YouTube(url, on_progress_callback=download_progressing)
-        stream = yt.streams.filter().first()
+if __name__ == "__main__":
+    window = ctk.CTk()
+    window.title(config_utils.WINDOW_TITLE)
+    window.iconbitmap(config_utils.WINDOW_ICON)
+    window.maxsize(config_utils.WINDOW_WIDTH, config_utils.WINDOW_HEIGHT)
+    window.minsize(config_utils.WINDOW_WIDTH, config_utils.WINDOW_HEIGHT)
+    window.geometry(ctk_utils.CenterWindowToDisplay(window, config_utils.WINDOW_WIDTH, config_utils.WINDOW_HEIGHT, window._get_window_scaling()))
+    window.resizable(False, False)
 
-        progress_bar.place(x=156, y=140, anchor=tk.CENTER)
-        progress_label.place(x=156, y=140, anchor=tk.CENTER)
+    config_utils.load_config()
 
-        audio_file = stream.download(output_path=download_folder)
+    ctk.set_appearance_mode("System")
+    ctk.set_default_color_theme("blue")
+    
+    frame = ctk.CTkFrame(window, fg_color="#242424")
+    frame.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
+    
+    url_input = ctk_utils.create_entry(
+        frame, 
+        300, 
+        25, 
+        18, 
+        "#A1A1A1", 
+        5, 
+        "Insira a URL!")
+    url_input.place(**config_utils.url_input_pos)
 
-        time.sleep(3)
-        status_label.configure(text=downloaded_file, text_color=status_normal_col)
-        status_label.place(x=156, y=180, anchor=tk.CENTER)
+    validate_button = ctk_utils.create_button(
+        frame, 
+        150, 
+        25, 
+        "Buscar", 
+        18, 
+        corner_radius=5, 
+        command=more_actions)
+    validate_button.place(**config_utils.validate_btn_pos)
 
-        try:
-            time.sleep(1)
-            video_clip = VideoFileClip(str(audio_file))
-            video_clip.audio.write_audiofile(f"{str(audio_file)}.mp3")
-        except Exception as ex:
-            status_label.configure(text=f"Ocorreu um erro. \n Não foi possivel converter o arquivo de video em audio.", text_color=status_error_col)
+    save_local_file = ctk_utils.create_button(
+        frame, 
+        463, 
+        25, 
+        app_logic.truncate_text(DOWNLOAD_FOLDER, 35), 
+        18, 
+        command=select_local_file_download, 
+        fg_color="#343638", 
+        border_width=2, 
+        border_color="#565b5e", 
+        corner_radius=5,
+        hover=False)
+    save_local_file.place(**config_utils.file_loc_btn_pos)
 
-    except Exception as ex:
-        status_label.configure(text=f"Ocorreu um erro. \n {str(ex)}", text_color=status_error_col)
-        status_label.place(x=156, y=180, anchor=tk.CENTER)
+    videos_options = ctk_utils.create_cbb(
+        frame, 
+        300, 
+        25, 
+        18, 
+        [], 
+        None,
+        state="readonly")
+    videos_options.place_forget()
+    # videos_options.place(**config_utils.video_options_pos)
 
-#endregion
+    download_button = ctk_utils.create_button(
+        frame, 
+        150, 
+        25, 
+        "Baixar", 
+        18, 
+        corner_radius=5, 
+        command=download)
+    download_button.place_forget()
+    # download_button.place(**config_utils.download_btn_pos)
 
-#region DOWNLOAD PROGRESSING
-def download_progressing(stream, chunk, bytes_remaining):
-    total_size = stream.filesize
-    bytes_downloaded = total_size - bytes_remaining
-    percentage_completed = bytes_downloaded / total_size * 100
-    progress_bar.set(float(percentage_completed / 100))
+    error_message = ctk_utils.create_label(
+        frame, 
+        "URL INDISPONÍVEL", 
+        "#fc2d31", 
+        16)
+    error_message.place_forget()
+    # error_message.place(**config_utils.error_message_pos)
 
-    progress_label.configure(text=f"{str(int(percentage_completed))}%")
-    progress_label.update()
-#endregion
-
-#region FONTS
-high_font_size = ctk.CTkFont(family=font_family, size=font_high_size)
-normal_font_size = ctk.CTkFont(family=font_family, size=font_normal_size)
-small_font_size = ctk.CTkFont(family=font_family, size=font_small_size)
-very_small_font_size = ctk.CTkFont(family=font_family, size=font_very_small_size)
-#endregion
-
-#region FRAME
-frame = ctk.CTkFrame(window, fg_color=frame_bg_col)
-frame.pack(padx=10, pady=10, fill=ctk.BOTH, expand=True)
-#endregion
-
-#region URL INPUT
-url_input = ctk.CTkEntry(frame, width=312, height=25, text_color=url_text_col, corner_radius=10, font=normal_font_size, placeholder_text=url_text_placeholder, placeholder_text_color=url_text_col)
-url_input.place(x=156, y=20, anchor=tk.CENTER)
-#endregion
-
-#region PROGRESS BAR
-progress_bar = ctk.CTkProgressBar(frame, width=312, height=25, progress_color=progress_col)
-progress_label = ctk.CTkLabel(frame, text=progress_label_text, font=normal_font_size)
-status_label = ctk.CTkLabel(frame, text=downloaded_file, font=small_font_size)
-
-# progress_bar.place(x=156, y=140, anchor=tk.CENTER)
-# progress_label.place(x=156, y=140, anchor=tk.CENTER)
-# status_label.place(x=156, y=180, anchor=tk.CENTER)
-
-
-progress_bar.set(float(0))
-progress_label.configure(text="0%")
-
-#endregion
-
-#region VIDEO RESOLUTIONS
-video_resolution_label = ctk.CTkLabel(frame, text=video_res_label, font=small_font_size)
-video_resolution_label.place(x=71, y=60, anchor=tk.CENTER)
-
-video_resolution = ctk.StringVar()
-video_resolutions_cbb = ctk.CTkComboBox(frame, width=140, height=25, values=video_resolutions, font=normal_font_size, variable=video_resolution)
-video_resolutions_cbb.set("720p")
-video_resolutions_cbb.place(x=241, y=60, anchor=tk.CENTER)
-#endregion
-
-#region DOWNLOAD VIDEO BUTTON
-video_download_btn = ctk.CTkButton(frame, text=download_video_btn, width=140, height=25, hover=btn_hover_col, fg_color=btn_fg_col, corner_radius=10, font=normal_font_size, command=video_download)
-video_download_btn.pack(pady=5)
-video_download_btn.place(x=71, y=100, anchor=tk.CENTER)
-#endregion
-
-#region DOWNLOAD AUDIO BUTTON
-audio_download_btn = ctk.CTkButton(frame, text=download_audio_btn, width=140, height=25, hover=btn_hover_col, fg_color=btn_fg_col, corner_radius=10, font=normal_font_size, command=download_audio)
-audio_download_btn.pack(pady=5)
-audio_download_btn.place(x=241, y=100, anchor=tk.CENTER)
-#endregion
-
-window.mainloop()
+    window.mainloop()
