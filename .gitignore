@@ -1,6 +1,7 @@
 /build/
 /dist/
 /.vscode/
+/__pycache__/
 /src/config.json
 *.spec
 compile.bat
