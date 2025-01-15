@@ -21,38 +21,50 @@ def select_folder_action(select_folder_btn):
         config_manager.save_config(selected_folder)
 
 class DownloadFile():
-    def __init__(self, master, download_progress, input_entry, video_res, status_message):
+    def __init__(self, master, input_entry, video_res, status_message):
         self.master = master
-        self.download_progress = download_progress
         self.input_entry = input_entry
         self.video_res = video_res
         self.status_message = status_message
-        self.download_running = False
+        self.loading_animation_active = False
+
+    def starting_loading_message(self):
+        def animate_message():
+            if not self.loading_animation_active:
+                self.status_message.configure(text="Conteúdo Baixado!", text_color=SUCESS_COLOR)
+                return
+            base_message = "Download iniciado! Aguarde"
+            dots = [".", "..", "..."]
+            current_dots = dots[int(time.time() * 1) % len(dots)]
+
+            self.status_message.configure(text=base_message + current_dots, text_color=WAITING_COLOR)
+            self.master.after(300, animate_message)
+            
+        animate_message()
 
     def progress_callback(self, d):
-        if d["status"] == "downloading":
-            percent_str = re.sub(r'[^\d]+', '', d['_percent_str'])
-            percent = float(percent_str)
-            self.master.after(0, self.download_progress.set, percent / 100)
-            self.status_message.configure(text=f"Download em andamento. {percent}")
-        elif d["status"] == "finished":
-            self.download_running = False
-            self.status_message.configure(text=f"Vídeo Baixado!")
+        if d["status"] == "finished":
+            self.loading_animation_active = False
 
     def download(self):
-        self.download_running = True
-        selected_opton = self.video_res.get()
-        url = self.input_entry.get()
-        if selected_opton.startswith("Vídeo:"):
-            resolution = selected_opton.split(":")[1]
-            threading.Thread(target=yt_core.download_video, args=(url, resolution, config_manager.download_folder, self.progress_callback)).start()
-        elif selected_opton.startswith("Apenas áudio"):
-            threading.Thread(target=yt_core.download_audio, args=(url, config_manager.download_folder, self.progress_callback)).start()
-
-    def update_progress(self):
-        while self.download_running:
-            self.master.after(50, self.update_progress)
-            time.sleep(0.1)
+        try:
+            selected_option = self.video_res.get()
+            url = self.input_entry.get()
+            print(f"Opção selecionada: {selected_option}")
+            print(f"URL: {url}")
+            
+            if selected_option.startswith("Vídeo:"):
+                resolution = selected_option.split(":")[1].strip()[:-1]
+                print("Resolução: {resolution}")
+                self.loading_animation_active = True
+                threading.Thread(target=yt_core.download_video, args=(url, resolution, config_manager.download_folder, self.progress_callback)).start()
+                self.starting_loading_message()
+            elif selected_option.startswith("Apenas áudio"):
+                self.loading_animation_active = True
+                threading.Thread(target=yt_core.download_audio, args=(url, config_manager.download_folder, self.progress_callback)).start()
+                self.starting_loading_message()
+        except Exception as ex:
+            print(f"Erro durante o download: {ex}")
 
 class ConfigManager:
     def __init__(self):
@@ -102,7 +114,7 @@ class GetVideoByURL:
         self.video_res = video_res
         self.status_message = status_message
         self.loading_animation_active = False
-
+        
     def fetch_video_resolutions(self, url):
         try:
             options = yt_core.get_video_resolutions(url)
@@ -112,7 +124,7 @@ class GetVideoByURL:
             self.loading_animation_active = False
         except Exception as ex:
             self.loading_animation_active = False
-            self.status_message.configure(text=f"ERRO! {ex}")
+            self.status_message.configure(text=f"ERRO! {ex}", text_color=ERROR_COLOR)
 
     def update_video_options(self, all_options):
         self.video_res.configure(values=all_options)
@@ -124,14 +136,14 @@ class GetVideoByURL:
     def starting_loading_message(self):
         def animate_message():
             if not self.loading_animation_active:
-                self.status_message.configure(text="Download liberado!")
+                self.status_message.configure(text="Download liberado!", text_color=SUCESS_COLOR)
                 return
             
-            base_message = "Aguarde um momento"
-            dots = ["", ".", "..", "..."]
+            base_message = "Verificando! Aguarde"
+            dots = [".", "..", "..."]
             current_dots = dots[int(time.time() * 1) % len(dots)]
 
-            self.status_message.configure(text=base_message + current_dots)
+            self.status_message.configure(text=base_message + current_dots, text_color=WAITING_COLOR)
             self.master.after(300, animate_message)
         
         animate_message()
@@ -140,7 +152,7 @@ class GetVideoByURL:
         url = self.input_entry.get()
 
         if not url:
-            self.status_message.configure(text="URL INVÁLIDA!")
+            self.status_message.configure(text="URL INVÁLIDA!", text_color=ERROR_COLOR)
             return
 
         youtube_regex = re.compile(
@@ -148,7 +160,7 @@ class GetVideoByURL:
         )
 
         if not youtube_regex.match(url):
-            self.status_message.configure(text="URL INVÁLIDA!")
+            self.status_message.configure(text="URL INVÁLIDA!", text_color=ERROR_COLOR)
             return
 
         self.loading_animation_active = True

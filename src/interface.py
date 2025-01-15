@@ -60,21 +60,21 @@ class App:
         )
        
         # barra de progresso do download
-        self.download_progress = ctk_basics.ctkProgress(
-            self.frame,
-            430,
-            30,
-            0,
-            border_width=0
-        )
+        # self.download_progress = ctk_basics.ctkProgress(
+        #     self.frame,
+        #     430,
+        #     30,
+        #     0,
+        #     border_width=0
+        # )
        
         # messagem de status
         self.status_label = ctk_basics.ctkLabel(
             self.frame,
             430,
             30,
-            STATUS_MESSAGE,
-            STATUS_MESSAGE_COLOR,
+            "Bem-vindo!",
+            NORMAL_COLOR,
             16,
             0
         )
@@ -89,7 +89,6 @@ class App:
         
         self.download_action = DownloadFile(
             master=master,
-            download_progress=self.download_progress,
             video_res=self.video_res,
             input_entry=self.url_entry,
             status_message=self.status_label
@@ -98,7 +97,6 @@ class App:
         self.download_btn.configure(state=ctk.DISABLED) 
         self.video_res.set("Resolução") 
         self.video_res.configure(state=ctk.DISABLED)
-        self.download_progress.set(0)
 
         self.download_btn.configure(command=self.download_action.download)
         self.url_entry.bind("<Return>", lambda event: self.get_video.check_input_url())
@@ -107,5 +105,4 @@ class App:
         self.select_folder.place(**SELECT_FOLDER_POS) 
         self.video_res.place(**VIDEO_RES_POS)
         self.download_btn.place(**DOWNLOAD_BTN_POS)
-        self.download_progress.place(**DOWNLOAD_PROGRESS_POS)
         self.status_label.place(**STATUS_LABEL_POS)

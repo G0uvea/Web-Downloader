@@ -13,7 +13,7 @@ def CenterWindowToDisplay(Screen: ctk.CTk, width: int, height: int, scale_factor
 
 if __name__ == "__main__":
     window = ctk.CTk()
-    window.title(WINDOW_ICON)
+    window.title(WINDOW_TITLE)
     window.iconbitmap(WINDOW_ICON)
     window.maxsize(WINDOW_WIDTH, WINDOW_HEIGHT)
     window.minsize(WINDOW_WIDTH, WINDOW_HEIGHT)
