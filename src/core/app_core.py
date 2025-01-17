@@ -28,7 +28,7 @@ NORMAL_COLOR = "white"
 ERROR_COLOR = "red"
 SUCESS_COLOR = "green"
 WAITING_COLOR = "orange"
-REMAINING_TIME = "#1f6aa5"
+REMAINING_TIME_COLOR = "#1f6aa5"
 
 class ConfigManager:
     def __init__(self):

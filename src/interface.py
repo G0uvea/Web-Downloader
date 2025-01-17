@@ -77,8 +77,8 @@ class App:
             self.frame,
             width=210,
             height=30,
-            text="00:00:00",
-            text_color=REMAINING_TIME,
+            text="Tempo restante: 00:00:00",
+            text_color=REMAINING_TIME_COLOR,
             font=ctk.CTkFont(family=APP_FONT, size=16),
             corner_radius=0,
             fg_color="#343638"
