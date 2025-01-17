@@ -1,5 +1,6 @@
 import customtkinter as ctk
-from src.utils import *
+from src.utils.helper import *
+from src.core.youtube_core import *
 
 config_manager.load_confg()
 
@@ -12,25 +13,25 @@ class App:
         self.frame.pack(fill="both", padx=10, pady=10)
 
         # campo da url
-        self.url_entry = ctk_basics.ctkEntry(
+        self.url_entry = ctk.CTkEntry(
             self.frame,
-            300,
-            30,
-            "Insira uma URL válida!",
-            18,
-            0,
+            width=300,
+            height=30,
+            placeholder_text="Insira uma URL válida!",
+            font=ctk.CTkFont(family=APP_FONT, size=18),
+            corner_radius=0,
             border_width=0,
             fg_color="#343638"
         )
 
         # botão de seleção de pasta
-        self.select_folder = ctk_basics.ctkButton(
+        self.select_folder = ctk.CTkButton(
             self.frame,
-            300,
-            30,
-            truncate_text(config_manager.download_folder, 35),
-            18,
-            0,
+            width=300,
+            height=30,
+            text=truncate_text(config_manager.download_folder, 35),
+            font=ctk.CTkFont(family=APP_FONT, size=18),
+            corner_radius=0,
             border_width=0,
             fg_color="#343638",
             hover_color="#2f3032",
@@ -38,68 +39,52 @@ class App:
         )
         
         # combobox de resoluções de vídeo
-        self.video_res = ctk_basics.ctkCbb(
+        self.video_res = ctk.CTkComboBox(
             self.frame,
-            120,
-            30,
-            14,
-            0,
+            width=120,
+            height=30,
+            font=ctk.CTkFont(family=APP_FONT, size=14),
+            corner_radius=0,
             border_width=0,
             values=[]
         )
         
         # botão de download
-        self.download_btn = ctk_basics.ctkButton(
+        self.download_btn = ctk.CTkButton(
             self.frame,
-            120,
-            30,
-            "Baixar",
-            18,
-            0,
+            width=120,
+            height=30,
+            text="Baixar",
+            font=ctk.CTkFont(family=APP_FONT, size=18),
+            corner_radius=0,
             border_width=0
         )
        
-        # barra de progresso do download
-        # self.download_progress = ctk_basics.ctkProgress(
-        #     self.frame,
-        #     430,
-        #     30,
-        #     0,
-        #     border_width=0
-        # )
-       
         # messagem de status
-        self.status_label = ctk_basics.ctkLabel(
+        self.status_label = ctk.CTkLabel(
             self.frame,
-            430,
-            30,
-            "Bem-vindo!",
-            NORMAL_COLOR,
-            16,
-            0
+            width=430,
+            height=30,
+            text="Bem-vindo!",
+            text_color=NORMAL_COLOR,
+            font=ctk.CTkFont(family=APP_FONT, size=16),
+            corner_radius=0
         )
 
-        self.get_video = GetVideoByURL(
+        self.ytCore = YoutubeCore(
             master=self.master,
-            download_btn=self.download_btn,
+            status_message=self.status_label,
             input_entry=self.url_entry,
-            video_res=self.video_res,
-            status_message=self.status_label
+            resolution_cbb=self.video_res,
+            download_btn=self.download_btn
         )
         
-        self.download_action = DownloadFile(
-            master=master,
-            video_res=self.video_res,
-            input_entry=self.url_entry,
-            status_message=self.status_label
-        )
-
         self.download_btn.configure(state=ctk.DISABLED) 
         self.video_res.set("Resolução") 
         self.video_res.configure(state=ctk.DISABLED)
 
-        self.download_btn.configure(command=self.download_action.download)
-        self.url_entry.bind("<Return>", lambda event: self.get_video.check_input_url())
+        self.download_btn.configure(command=self.ytCore.download_verify)
+        self.url_entry.bind("<Return>", lambda event: self.ytCore.youtube_get_video())
 
         self.url_entry.place(**URL_ENTRY_POS)
         self.select_folder.place(**SELECT_FOLDER_POS) 

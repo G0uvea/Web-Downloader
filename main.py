@@ -1,8 +1,6 @@
 import customtkinter as ctk
-from pathlib import Path
-from src.interface import *
-from src.utils import *
-from src.app_core import *
+from src.core.app_core import *
+from src.interface import App
 
 def CenterWindowToDisplay(Screen: ctk.CTk, width: int, height: int, scale_factor: float = 1.0):
     screen_width = Screen.winfo_screenwidth()
