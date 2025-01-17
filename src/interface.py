@@ -76,7 +76,8 @@ class App:
             status_message=self.status_label,
             input_entry=self.url_entry,
             resolution_cbb=self.video_res,
-            download_btn=self.download_btn
+            download_btn=self.download_btn,
+            select_folder_btn=self.select_folder
         )
         
         self.download_btn.configure(state=ctk.DISABLED) 
