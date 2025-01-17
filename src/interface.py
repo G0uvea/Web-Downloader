@@ -63,23 +63,25 @@ class App:
         # messagem de status
         self.status_label = ctk.CTkLabel(
             self.frame,
-            width=215,
+            width=210,
             height=30,
             text="Bem-vindo!",
             text_color=NORMAL_COLOR,
             font=ctk.CTkFont(family=APP_FONT, size=16),
-            corner_radius=0
+            corner_radius=0,
+            fg_color="#343638"
         )
 
         # messagem de tempo
         self.time_label = ctk.CTkLabel(
             self.frame,
-            width=215,
+            width=210,
             height=30,
-            text="Bem-vindo!",
-            text_color=NORMAL_COLOR,
+            text="00:00:00",
+            text_color=REMAINING_TIME,
             font=ctk.CTkFont(family=APP_FONT, size=16),
-            corner_radius=0
+            corner_radius=0,
+            fg_color="#343638"
         )
 
 
@@ -94,7 +96,7 @@ class App:
         )
         
         self.download_btn.configure(state=ctk.DISABLED) 
-        self.video_res.set("Resolução") 
+        self.video_res.set("Resolução")
         self.video_res.configure(state=ctk.DISABLED)
 
         self.download_btn.configure(command=self.ytCore.download_verify)

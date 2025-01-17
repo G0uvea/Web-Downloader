@@ -43,7 +43,7 @@ class YoutubeCore:
         self.master.after(0, lambda: self.input_entry.configure(state="disabled"))
         self.master.after(0, lambda: self.select_folder_btn.configure(state="disabled"))
         
-        self.status_message.configure(text="Fazendo o download, por favor aguarde!", text_color=WAITING_COLOR)
+        self.status_message.configure(text="Fazendo o download", text_color=WAITING_COLOR)
 
         try:
             selected_option = self.resolution_cbb.get()
@@ -100,8 +100,6 @@ class YoutubeCore:
                         acodec="aac", 
                         audio_bitrate="192k"
                     ).run(overwrite_output=True)
-                
-                
 
                 # Verifica se o arquivo convertido existe
                 if not os.path.exists(converted_file):
@@ -113,8 +111,8 @@ class YoutubeCore:
 
                 self.master.after(0, lambda: self.status_message.configure(
                     text="Download concluído!", text_color=SUCESS_COLOR))
+                
             self.master.after(0, lambda: self.resolution_cbb.configure(state="readonly"))
-            self.master.after(0, lambda: self.resolution_cbb.set(values=[0]))
             self.master.after(0, lambda: self.download_btn.configure(state="normal"))
             self.master.after(0, lambda: self.input_entry.configure(state="normal"))
             self.master.after(0, lambda: self.select_folder_btn.configure(state="normal"))
@@ -124,11 +122,6 @@ class YoutubeCore:
             print(error_details)  # Para debug
             self.master.after(0, lambda: self.status_message.configure(
                 text=f"Erro na conversão!", text_color=ERROR_COLOR))
-
-    def update_status(self, line):
-        time_part = line.split("time=")[1].split()[0]
-        self.master.after(0, lambda: self.time_label.configure(
-                text=f"Tempo restante: {time_part}", text_color=REMAINING_TIME))
 
     def youtube_get_video(self):
         self.master.after(0, lambda: self.resolution_cbb.configure(state="disabled"))
@@ -140,7 +133,7 @@ class YoutubeCore:
         if not url or not self.youtube_regex.match(url):
             self.status_message.configure(text="URL inválida!", text_color=ERROR_COLOR)
             return
-        self.status_message.configure(text="Buscando resoluções...", text_color=WAITING_COLOR)
+        self.status_message.configure(text="Buscando resoluções", text_color=WAITING_COLOR)
         threading.Thread(target=self.fetch_resolutions, args=(url,)).start()
 
     def fetch_resolutions(self, url):
@@ -152,12 +145,13 @@ class YoutubeCore:
             self.status_message.configure(text=f"Erro ao buscar resoluções!", text_color=ERROR_COLOR)
 
     def update_resolutions(self, all_options):
+        self.res_options = all_options
         self.resolution_cbb.configure(values=all_options)
+        self.resolution_cbb.configure(state="readonly")
+        self.download_btn.configure(state="normal")
+        self.input_entry.configure(state="normal")
+        self.select_folder_btn.configure(state="normal")
+        self.status_message.configure(text="Download liberado!", text_color=SUCESS_COLOR)
+
         if all_options:
-            self.master.after(0, lambda: self.resolution_cbb.configure(state="readonly"))
             self.resolution_cbb.set(all_options[0])
-            self.master.after(0, lambda: self.download_btn.configure(state="normal"))
-            self.master.after(0, lambda: self.input_entry.configure(state="normal"))
-            self.master.after(0, lambda: self.select_folder_btn.configure(state="normal"))
-            
-            self.status_message.configure(text="Download liberado!", text_color=SUCESS_COLOR)
