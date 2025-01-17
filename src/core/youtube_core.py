@@ -10,7 +10,7 @@ from src.utils.helper import *
 
 
 class YoutubeCore:
-    def __init__(self, master, status_message, input_entry, resolution_cbb, download_btn, select_folder_btn):
+    def __init__(self, master, status_message, input_entry, resolution_cbb, download_btn, select_folder_btn, time_label):
         self.resolution_filter = ["144p", "240p", "320p", "480p", "720p", "1080p"]
         self.video_resolution_format = {'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'}
         self.master = master
@@ -19,8 +19,9 @@ class YoutubeCore:
         self.resolution_cbb = resolution_cbb
         self.download_btn = download_btn
         self.select_folder_btn = select_folder_btn
+        self.time_label = time_label
 
-        self.youtube_regex = re.compile(r'^(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/.+$')
+        self.youtube_regex = re.compile(r'^(https?://)?(www\.)?(youtube|youtu|youtube-nocookie|yout)\.(com|be)/.+$')
 
         self.temp_folder = os.path.join(config_manager.app_folder, ".download_temp")
         os.makedirs(self.temp_folder, exist_ok=True)
@@ -37,10 +38,10 @@ class YoutubeCore:
             return {'video': []}
 
     def download_verify(self):
-        self.master.after(0, lambda: self.resolution_cbb.configure(state=ctk.DISABLED))
-        self.master.after(0, lambda: self.download_btn.configure(state=ctk.DISABLED))
-        self.master.after(0, lambda: self.input_entry.configure(state=ctk.DISABLED))
-        self.master.after(0, lambda: self.select_folder_btn.configure(state=ctk.DISABLED))
+        self.master.after(0, lambda: self.resolution_cbb.configure(state="disabled"))
+        self.master.after(0, lambda: self.download_btn.configure(state="disabled"))
+        self.master.after(0, lambda: self.input_entry.configure(state="disabled"))
+        self.master.after(0, lambda: self.select_folder_btn.configure(state="disabled"))
         
         self.status_message.configure(text="Fazendo o download, por favor aguarde!", text_color=WAITING_COLOR)
 
@@ -62,11 +63,19 @@ class YoutubeCore:
 
     def download_and_convert(self, type, url, resolution):
         try:
+            if resolution:
+                resolution = resolution.replace("p", "")
+
             ydl_opts = {
-                'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
                 'outtmpl': os.path.join(self.temp_folder, '%(title)s.%(ext)s'),
                 'noplaylist': True
             }
+
+            if type == "video":
+                ydl_opts['format'] = f'bestvideo[height={resolution}][ext=mp4]+bestaudio[ext=m4a]/best[height={resolution}][ext=mp4]/best'
+            elif type == "audio":
+                ydl_opts['format'] = 'bestaudio[ext=m4a]/best'
+
             with ytdl.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
                 downloaded_file = ydl.prepare_filename(info)
@@ -81,13 +90,19 @@ class YoutubeCore:
                 
                 if type == "video":
                     ffmpeg.input(downloaded_file).output(
-                        converted_file, vcodec="libx264", acodec="aac", strict="experimental"
+                        converted_file, vcodec="libx264", 
+                        acodec="aac", 
+                        strict="experimental"
                     ).run(overwrite_output=True)
                 elif type == "audio":
                     ffmpeg.input(downloaded_file).output(
-                        converted_file, acodec="aac", audio_bitrate="192k"
+                        converted_file, 
+                        acodec="aac", 
+                        audio_bitrate="192k"
                     ).run(overwrite_output=True)
                 
+                
+
                 # Verifica se o arquivo convertido existe
                 if not os.path.exists(converted_file):
                     raise FileNotFoundError(f"Arquivo convertido não encontrado: {converted_file}")
@@ -98,22 +113,28 @@ class YoutubeCore:
 
                 self.master.after(0, lambda: self.status_message.configure(
                     text="Download concluído!", text_color=SUCESS_COLOR))
-            self.master.after(0, lambda: self.resolution_cbb.configure(state=ctk.NORMAL))
-            self.master.after(0, lambda: self.download_btn.configure(state=ctk.NORMAL))
-            self.master.after(0, lambda: self.input_entry.configure(state=ctk.NORMAL))
-            self.master.after(0, lambda: self.select_folder_btn.configure(state=ctk.NORMAL))
+            self.master.after(0, lambda: self.resolution_cbb.configure(state="readonly"))
+            self.master.after(0, lambda: self.resolution_cbb.set(values=[0]))
+            self.master.after(0, lambda: self.download_btn.configure(state="normal"))
+            self.master.after(0, lambda: self.input_entry.configure(state="normal"))
+            self.master.after(0, lambda: self.select_folder_btn.configure(state="normal"))
         except Exception as ex:
             import traceback
             error_details = traceback.format_exc()
             print(error_details)  # Para debug
             self.master.after(0, lambda: self.status_message.configure(
-                text=f"Erro na conversão: {str(ex)}", text_color=ERROR_COLOR))
+                text=f"Erro na conversão!", text_color=ERROR_COLOR))
+
+    def update_status(self, line):
+        time_part = line.split("time=")[1].split()[0]
+        self.master.after(0, lambda: self.time_label.configure(
+                text=f"Tempo restante: {time_part}", text_color=REMAINING_TIME))
 
     def youtube_get_video(self):
-        self.master.after(0, lambda: self.resolution_cbb.configure(state=ctk.DISABLED))
-        self.master.after(0, lambda: self.download_btn.configure(state=ctk.DISABLED))
-        self.master.after(0, lambda: self.input_entry.configure(state=ctk.DISABLED))
-        self.master.after(0, lambda: self.select_folder_btn.configure(state=ctk.DISABLED))    
+        self.master.after(0, lambda: self.resolution_cbb.configure(state="disabled"))
+        self.master.after(0, lambda: self.download_btn.configure(state="disabled"))
+        self.master.after(0, lambda: self.input_entry.configure(state="disabled"))
+        self.master.after(0, lambda: self.select_folder_btn.configure(state="disabled"))    
         
         url = self.input_entry.get()
         if not url or not self.youtube_regex.match(url):
@@ -134,8 +155,9 @@ class YoutubeCore:
         self.resolution_cbb.configure(values=all_options)
         if all_options:
             self.master.after(0, lambda: self.resolution_cbb.configure(state="readonly"))
-            self.master.after(0, lambda: self.download_btn.configure(state=ctk.NORMAL))
-            self.master.after(0, lambda: self.input_entry.configure(state=ctk.NORMAL))
-            self.master.after(0, lambda: self.select_folder_btn.configure(state=ctk.NORMAL))
             self.resolution_cbb.set(all_options[0])
+            self.master.after(0, lambda: self.download_btn.configure(state="normal"))
+            self.master.after(0, lambda: self.input_entry.configure(state="normal"))
+            self.master.after(0, lambda: self.select_folder_btn.configure(state="normal"))
+            
             self.status_message.configure(text="Download liberado!", text_color=SUCESS_COLOR)

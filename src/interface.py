@@ -63,7 +63,7 @@ class App:
         # messagem de status
         self.status_label = ctk.CTkLabel(
             self.frame,
-            width=430,
+            width=215,
             height=30,
             text="Bem-vindo!",
             text_color=NORMAL_COLOR,
@@ -71,13 +71,26 @@ class App:
             corner_radius=0
         )
 
+        # messagem de tempo
+        self.time_label = ctk.CTkLabel(
+            self.frame,
+            width=215,
+            height=30,
+            text="Bem-vindo!",
+            text_color=NORMAL_COLOR,
+            font=ctk.CTkFont(family=APP_FONT, size=16),
+            corner_radius=0
+        )
+
+
         self.ytCore = YoutubeCore(
             master=self.master,
             status_message=self.status_label,
             input_entry=self.url_entry,
             resolution_cbb=self.video_res,
             download_btn=self.download_btn,
-            select_folder_btn=self.select_folder
+            select_folder_btn=self.select_folder,
+            time_label = self.time_label
         )
         
         self.download_btn.configure(state=ctk.DISABLED) 
@@ -92,3 +105,4 @@ class App:
         self.video_res.place(**VIDEO_RES_POS)
         self.download_btn.place(**DOWNLOAD_BTN_POS)
         self.status_label.place(**STATUS_LABEL_POS)
+        self.time_label.place(**TIME_LABEL_POS)

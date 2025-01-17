@@ -9,7 +9,8 @@ WINDOW_ICON = Path(__file__).parent.parent.parent / "assets" / "icon.ico"
 APP_FONT = "Roboto"
 
 # POSITIONS
-STATUS_LABEL_POS = {"x": 215, "y": 80, "anchor": "n"} # mensagem de erro etc...
+STATUS_LABEL_POS = {"x": 107, "y": 80, "anchor": "n"}
+TIME_LABEL_POS = {"x": 323, "y": 80, "anchor": "n"}
 URL_ENTRY_POS = {"x": 150, "y": 0, "anchor": "n"}
 SELECT_FOLDER_POS = {"x": 150, "y": 40, "anchor": "n"}
 VIDEO_RES_POS = {"x": 370, "y": 0, "anchor": "n"}
@@ -27,6 +28,7 @@ NORMAL_COLOR = "white"
 ERROR_COLOR = "red"
 SUCESS_COLOR = "green"
 WAITING_COLOR = "orange"
+REMAINING_TIME = "blue"
 
 class ConfigManager:
     def __init__(self):
