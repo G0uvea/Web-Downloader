@@ -1,2 +1,4 @@
+dependencies//ffmpeg.exe filter=lfs diff=lfs merge=lfs -text
+dependencies//ffprobe.exe filter=lfs diff=lfs merge=lfs -text
 dependencies/ffmpeg.exe filter=lfs diff=lfs merge=lfs -text
 dependencies/ffprobe.exe filter=lfs diff=lfs merge=lfs -text
