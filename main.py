@@ -1,7 +1,7 @@
 import customtkinter as ctk
 
 from pathlib import Path
-from src.main_interface import App
+from main_interface import App
 from config import *
 
 def CenterWindowToDisplay(Screen: ctk.CTk, width: int, height: int, scale_factor: float = 1.0):

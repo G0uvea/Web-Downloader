@@ -1,16 +1,31 @@
 import json
 from user_default_folders import *
+import sys # Adicione esta linha
+import os  # Adicione esta linha
 
 # WINDOW VARIABLE
 WINDOW_TITLE = "Web Downloader 1.3"
 WINDOW_WIDTH = 500
 WINDOW_HEIGHT = 160 #
-WINDOW_ICON = "icon.ico"
+# MODIFICAR AQUI:
+# Verifica se o aplicativo está rodando como um executável empacotado pelo PyInstaller
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    # Se sim, o caminho base é o diretório temporário do PyInstaller
+    BUNDLE_DIR = sys._MEIPASS
+else:
+    # Caso contrário, estamos rodando a partir do script Python normal
+    BUNDLE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Constrói o caminho completo para o ícone
+WINDOW_ICON = os.path.join(BUNDLE_DIR, "icon.ico")
+
 APP_ELEMENTS_HEIGHT = 40
 
 # PROGRAM FONTS
-INTER_REGULAR = "fonts\Inter_Regular.ttf"
-INTER_BLACK = "fonts\Inter_Black.ttf"
+# MODIFICAR AQUI PARA AS FONTES TAMBÉM
+INTER_REGULAR = os.path.join(BUNDLE_DIR, "fonts", "Inter_Regular.ttf")
+INTER_BLACK = os.path.join(BUNDLE_DIR, "fonts", "Inter_Black.ttf")
+
 
 # CONFIG FILE FOLDER
 DEFAULT_DOWNLOAD_LOCAL = USER_DOWNLOAD_FOLDER / "Web Downloader"
