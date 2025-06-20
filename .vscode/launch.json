@@ -1,13 +1,3 @@
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "App Main",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${workspaceFolder}/main.py",
-      "console": "integratedTerminal",
-      "justMyCode": true
-    }
-  ]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:192e80afe8f75f96c5720953a39b5b71a6c9a9c933815a930e9037f90cdf3ea7
+size 253

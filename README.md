@@ -1,5 +1,3 @@
-# **Youtube Downloader: <https://www.youtube.com/@g0uvea>**
-
-### O que é o **Youtube Downloader?**
-É um simples programa para poder baixar vídeos do youtube, em até 720p.
-Ele foi escrito completamente em python usando as bibliotecas Tkinter, CustomTkinter e PyTube
+version https://git-lfs.github.com/spec/v1
+oid sha256:7e6b0a355ec1ea4cdba2761960b8cfba26cc36d92b3131e5bf1d983973a36fc9
+size 269

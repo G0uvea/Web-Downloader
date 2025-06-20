@@ -1,4 +1,13 @@
-dependencies//ffmpeg.exe filter=lfs diff=lfs merge=lfs -text
-dependencies//ffprobe.exe filter=lfs diff=lfs merge=lfs -text
-dependencies/ffmpeg.exe filter=lfs diff=lfs merge=lfs -text
-dependencies/ffprobe.exe filter=lfs diff=lfs merge=lfs -text
+gui/assets/icon.ico filter=lfs diff=lfs merge=lfs -text
+gui/assets/fonts/*.ttf filter=lfs diff=lfs merge=lfs -text
+dependencies/ffmpeg/ffmpeg.exe filter=lfs diff=lfs merge=lfs -text
+dependencies/ffmpeg/ffprobe.exe filter=lfs diff=lfs merge=lfs -text
+dependencies/ffmpeg/ffplay.exe filter=lfs diff=lfs merge=lfs -text
+dependencies/ffmpeg/avcodec-62.dll filter=lfs diff=lfs merge=lfs -text
+dependencies/ffmpeg/avdevice-62.dll filter=lfs diff=lfs merge=lfs -text
+dependencies/ffmpeg/avfilter-11.dll filter=lfs diff=lfs merge=lfs -text
+dependencies/ffmpeg/avformat-62.dll filter=lfs diff=lfs merge=lfs -text
+dependencies/ffmpeg/avutil-60.dll filter=lfs diff=lfs merge=lfs -text
+dependencies/ffmpeg/swresample-6.dll filter=lfs diff=lfs merge=lfs -text
+dependencies/ffmpeg/swscale-9.dll filter=lfs diff=lfs merge=lfs -text
+dependencies/yt-dlp.exe filter=lfs diff=lfs merge=lfs -text

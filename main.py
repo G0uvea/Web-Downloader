@@ -1,27 +1,22 @@
 import customtkinter as ctk
+from gui.app_ui import AppUI # Importa a classe AppUI
+from config.ui_settings import WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE # Se for usar direto aqui
 
-from pathlib import Path
-from main_interface import App
-from config import *
 
-def CenterWindowToDisplay(Screen: ctk.CTk, width: int, height: int, scale_factor: float = 1.0):
-    screen_width = Screen.winfo_screenwidth()
-    screen_height = Screen.winfo_screenheight()
-    x = int(((screen_width/2) - (width/2)) * scale_factor)
-    y = int(((screen_height/2) - (height/1.5)) * scale_factor)
-    return f"{width}x{height}+{x}+{y}"
+# Configurações iniciais do CustomTkinter
+ctk.set_appearance_mode("System")  # Modes: "System" (default), "Dark", "Light"
+ctk.set_default_color_theme("blue")  # Themes: "blue" (default), "dark-blue", "green"
 
-if __name__ == "__main__":
-    window = ctk.CTk()
-    window.title(WINDOW_TITLE)
-    window.iconbitmap(WINDOW_ICON)
-    window.maxsize(WINDOW_WIDTH, WINDOW_HEIGHT)
-    window.minsize(WINDOW_WIDTH, WINDOW_HEIGHT)
-    window.geometry(CenterWindowToDisplay(window, WINDOW_WIDTH, WINDOW_HEIGHT, window._get_window_scaling()))
-    window.resizable(False, False)
-    ctk.set_appearance_mode("System")
-    ctk.set_default_color_theme("blue")
+# Cria a janela principal do CustomTkinter
+window = ctk.CTk()
+# Não precisamos setar título, geometria e ícone aqui, pois AppUI fará isso.
+# No entanto, se você quiser definir o título e a geometria antes de passar para AppUI, pode fazer aqui.
+# Ex:
+# window.title(WINDOW_TITLE)
+# window.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}") # A centralização será feita em AppUI
 
-    app = App(window)
+# Instancia a interface do usuário, passando a janela principal
+app_ui = AppUI(window)
 
-    window.mainloop()
+# Inicia o loop principal da interface
+window.mainloop()
