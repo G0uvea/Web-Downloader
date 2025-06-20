@@ -42,13 +42,9 @@ DEFAULT_DOWNLOAD_LOCAL = GetWindowsDefaultFolders.get_real_windows_folder("Downl
 DEFAULT_APP_LOCAL = GetWindowsDefaultFolders.get_real_windows_folder("Documents") / "Web Downloader"
 CONFIG_FILE = DEFAULT_APP_LOCAL / "config.json"
 
-# --- REVISÃO DO DEPENDENCIES_PATH e FFMPEG_BIN_PATH ---
 if getattr(sys, 'frozen', False):
-    # Se estiver rodando como um executável empacotado pelo PyInstaller
     ROOT_PATH = Path(sys._MEIPASS)
 else:
-    # Se estiver rodando em ambiente de desenvolvimento (PyCharm, VS Code, etc.)
-    # settings.py está em config/, então sobe duas vezes para a raiz do projeto (Web-Downloader)
     ROOT_PATH = Path(__file__).resolve().parent.parent
 
 # Caminho para a pasta 'dependencies' na raiz do projeto
@@ -60,7 +56,6 @@ FFMPEG_BIN_PATH = DEPENDENCIES_PATH / "ffmpeg"
 # Converter para string, pois os módulos podem esperar isso
 DEPENDENCIES_PATH = str(DEPENDENCIES_PATH)
 FFMPEG_BIN_PATH = str(FFMPEG_BIN_PATH)
-# --- FIM DA REVISÃO ---
 
 class ConfigManager:
     def __init__(self):

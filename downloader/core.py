@@ -6,15 +6,9 @@ import customtkinter as ctk
 import time
 import os
 
-# Importe FFMPEG_BIN_PATH e DEFAULT_APP_LOCAL aqui
 from config.settings import config_manager, FFMPEG_BIN_PATH, UIActions, DEFAULT_APP_LOCAL
 
-
 class AppCore:
-    """
-    Classe principal para a lógica de download de vídeos e áudios do YouTube.
-    Gerencia a interface do usuário (CustomTkinter) e as interações com yt-dlp.
-    """
     def __init__(self, master, url_input: ctk.CTkEntry, select_resolution_cbb: ctk.CTkComboBox,
                  download_file_btn: ctk.CTkButton, select_save_local_btn: ctk.CTkButton, app_terminal: ctk.CTkTextbox):
         self.master = master
@@ -50,8 +44,8 @@ class AppCore:
         """
         self.app_terminal.tag_config("error_tag", foreground="#FF0000")    # Vermelho vibrante
         self.app_terminal.tag_config("warning_tag", foreground="#FFFF00")  # Amarelo vibrante
-        self.app_terminal.tag_config("success_tag", foreground="#00FF00") # Verde vibrante
-        self.app_terminal.tag_config("info_tag", foreground="#87CEEB")    # Azul claro
+        self.app_terminal.tag_config("success_tag", foreground="#00FF00")  # Verde vibrante
+        self.app_terminal.tag_config("info_tag", foreground="#87CEEB")     # Azul claro
         self.app_terminal.tag_config("progress_tag", foreground="#ADD8E6") # Azul acinzentado
 
     def _set_initial_ui_state(self):
@@ -198,7 +192,8 @@ class AppCore:
             # Reabilita a UI após a verificação (mesmo em caso de erro)
             self.master.after(0, lambda: self._set_ui_state("normal"))
 
-    def _filter_formats(self, formats):
+    @staticmethod
+    def _filter_formats(formats):
         """
         Filtra e organiza os formatos de vídeo e áudio disponíveis,
         retornando apenas as opções realmente extraídas pelo yt-dlp.
@@ -375,7 +370,7 @@ class AppCore:
                 self._write_to_terminal("[INFO] Baixando vídeo individual.")
 
             with ytdl.YoutubeDL(ydl_opts) as ydl:
-                download_info = ydl.extract_info(url, download=True)
+                download_info = ydl.extract_info(url)
                 if download_info is None:
                     raise ValueError("Falha ao extrair informações do vídeo/playlist durante o download.")
 
@@ -437,7 +432,7 @@ class AppCore:
             error_details = traceback.format_exc()
             self._write_to_terminal(f"\n[ERRO] Erro na conversão ou movimentação: {error_details}")
         finally:
-            self._cleanup_temp_folder() # Limpa a pasta temporária
+            self._cleanup_temp_folder()  # Limpa a pasta temporária
             self._set_ui_state("normal") # Reabilita a UI
             self._write_to_terminal("[INFO] Pronto para baixar! Insira uma nova URL ou baixe o último vídeo.")
 

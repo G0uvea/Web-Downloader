@@ -1,33 +1,18 @@
 import customtkinter as ctk
 import queue
 import os
-import sys  # Importar sys para usar sys._MEIPASS
+import sys
 
-from config.ui_settings import *  # Importa os caminhos relativos do ui_settings.py
+from config.ui_settings import *
 from config.settings import config_manager, UIActions
-from downloader.core import AppCore  # Assumindo que core.py existe e é importado aqui
+from downloader.core import AppCore
 
-
-# --- FUNÇÃO PARA TRATAR CAMINHOS DE RECURSOS (PARA PYINSTALLER) ---
-# Esta função deve estar em um local acessível onde os caminhos são usados.
-# Colocá-la aqui em app_ui.py, antes de qualquer uso, é eficaz.
 def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
-        # PyInstaller creates a temporary folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
     except Exception:
-        # Em modo de desenvolvimento, usa o diretório atual do script.
-        # Já que main.py está na raiz e app_ui.py em gui/, 
-        # e os assets estão em gui/assets, os caminhos relativos funcionam.
-        # O os.path.abspath(".") de onde o main.py é executado já é a raiz.
         base_path = os.path.abspath(".")
-
-        # Junta o caminho base (sys._MEIPASS ou dir. atual) com o caminho relativo do recurso
     return os.path.join(base_path, relative_path)
-
-
-# ------------------------------------------------------------------
 
 class AppUI:
     def __init__(self, master):
@@ -36,16 +21,15 @@ class AppUI:
         config_manager.load_config()
         self.ui_actions = UIActions()
 
-        # --- APLICAR resource_path AO ÍCONE DA JANELA ---
+        # Definir título do app
         self.master.title(WINDOW_TITLE)
 
-        # CORREÇÃO PARA O ERRO 'winfo_rxbase': Removido o argumento `self.master.winfo_rxbase()`
-        # A função CenterWindowToDisplay já tem um valor padrão para scale_factor (1.0).
+        # Definir a interface no centro do monitor
         self.master.geometry(self.ui_actions.CenterWindowToDisplay(
             self.master, WINDOW_WIDTH, WINDOW_HEIGHT
         ))
 
-        # AQUI ESTÁ A MUDANÇA CRÍTICA PARA O ÍCONE DA JANELA
+        # Definir ícone da janela
         self.master.iconbitmap(resource_path(WINDOW_ICON))
 
         # INTERFACE FRAME
